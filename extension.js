@@ -4,6 +4,7 @@ import St from 'gi://St';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { ZoneOutIndicator } from './src/indicator.js';
 import { ZoneOutPopup } from './src/popup.js';
+import { nextBreakMessage } from './src/messages.js';
 
 const LONG_BREAK_MODE_NOTICES = 0;
 const LONG_BREAK_MODE_HOURGLASS = 1;
@@ -32,8 +33,6 @@ export default class ZoneOutExtension extends Extension {
         this._indicator = new ZoneOutIndicator(this.uuid, {
             onTogglePause: () => this._togglePause(),
             onReset: () => this._resetTimers(),
-            onTestBreak: () => this._startShortBreak(),
-            onTestLongBreak: () => this._testLongBreak(),
             onOpenSettings: () => this.openPreferences(),
         });
 
@@ -130,7 +129,7 @@ export default class ZoneOutExtension extends Extension {
         this._breakRemaining = this._settings.get_int('auto-close-seconds');
         this._breakTotal = this._breakRemaining;
         this._activeLongBreakMode = null;
-        this._popup.showShortBreak(this._breakRemaining, () => this._finishBreak());
+        this._popup.showShortBreak(this._breakRemaining, nextBreakMessage('short'), () => this._finishBreak());
         this._updateLabel();
     }
 
@@ -144,28 +143,16 @@ export default class ZoneOutExtension extends Extension {
         this._activeLongBreakMode = this._settings.get_int('long-break-mode');
 
         if (this._activeLongBreakMode === LONG_BREAK_MODE_HOURGLASS) {
-            this._popup.showHourglass(this._breakTotal);
+            this._popup.showHourglass(this._breakTotal, nextBreakMessage('long'));
         } else {
             this._popup.showNotice(
                 'Long break started',
-                `Step away for ${this._formatTime(this._breakTotal)}.`,
-                Math.min(this._settings.get_int('auto-close-seconds'), LONG_BREAK_NOTICE_MAX_SECONDS));
+                this._formatTime(this._breakTotal),
+                Math.min(this._settings.get_int('auto-close-seconds'), LONG_BREAK_NOTICE_MAX_SECONDS),
+                { message: nextBreakMessage('long'), showDismiss: true });
         }
 
         this._updateLabel();
-    }
-
-    _testLongBreak() {
-        if (this._activeBreak === 'long')
-            return;
-
-        if (this._activeBreak === 'short') {
-            this._popup.dismiss();
-            this._activeBreak = null;
-        }
-
-        this._longRemaining = 0;
-        this._startLongBreak();
     }
 
     _finishBreak() {
@@ -188,7 +175,8 @@ export default class ZoneOutExtension extends Extension {
                 this._popup.showNotice(
                     'Long break over',
                     'Your break is complete. Ready to get back to work?',
-                    Math.min(this._settings.get_int('auto-close-seconds'), LONG_BREAK_NOTICE_MAX_SECONDS));
+                    Math.min(this._settings.get_int('auto-close-seconds'), LONG_BREAK_NOTICE_MAX_SECONDS),
+                    { message: nextBreakMessage('long'), showDismiss: true });
             }
         }
 

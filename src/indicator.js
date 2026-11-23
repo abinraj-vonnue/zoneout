@@ -36,14 +36,6 @@ export class ZoneOutIndicator {
         resetItem.connect('activate', () => callbacks.onReset());
         this._button.menu.addMenuItem(resetItem);
 
-        const testItem = new PopupMenu.PopupMenuItem('Test Short Break Now');
-        testItem.connect('activate', () => callbacks.onTestBreak());
-        this._button.menu.addMenuItem(testItem);
-
-        const testLongItem = new PopupMenu.PopupMenuItem('Test Long Break Now');
-        testLongItem.connect('activate', () => callbacks.onTestLongBreak());
-        this._button.menu.addMenuItem(testLongItem);
-
         this._button.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this._button.menu.addAction('Settings', () => callbacks.onOpenSettings());
 

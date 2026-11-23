@@ -11,6 +11,7 @@ export class ZoneOutPopup {
         this._popup = null;
         this._displayTimerId = null;
         this._subtitle = null;
+        this._message = null;
         this._dismissButton = null;
         this._hourglassArea = null;
         this._hourglassProgress = 0;
@@ -18,22 +19,19 @@ export class ZoneOutPopup {
         this._cardKind = null;
     }
 
-    showShortBreak(remainingSeconds, onDismiss) {
+    showShortBreak(remainingSeconds, message, onDismiss) {
         this._showCard({
             kind: 'short',
             title: 'Short break',
-            subtitle: `Look away from the screen (${this._formatTime(remainingSeconds)})`,
+            subtitle: this._formatTime(remainingSeconds),
+            message,
             showDismiss: true,
-        });
-
-        this._dismissButton.connect('clicked', () => {
-            this.dismiss();
-            onDismiss?.();
+            onDismiss,
         });
     }
 
-    showNotice(title, subtitle, autoCloseSeconds) {
-        this._showCard({ kind: 'notice', title, subtitle });
+    showNotice(title, subtitle, autoCloseSeconds, { message = '', showDismiss = false } = {}) {
+        this._showCard({ kind: 'notice', title, subtitle, message, showDismiss });
 
         this._displayTimerId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, autoCloseSeconds, () => {
             this._displayTimerId = null;
@@ -42,22 +40,22 @@ export class ZoneOutPopup {
         });
     }
 
-    showHourglass(totalSeconds) {
+    showHourglass(totalSeconds, message) {
         this._hourglassTotalSeconds = totalSeconds;
         this._showCard({
             kind: 'hourglass',
             title: 'Long break',
-            subtitle: `Time remaining: ${this._formatTime(totalSeconds)}`,
+            subtitle: this._formatTime(totalSeconds),
+            message,
             hourglass: true,
+            showDismiss: true,
         });
         this.updateCountdown(totalSeconds, totalSeconds);
     }
 
     updateCountdown(remainingSeconds, totalSeconds = this._hourglassTotalSeconds) {
-        if (this._cardKind === 'short' && this._subtitle)
-            this._subtitle.set_text(`Look away from the screen (${this._formatTime(remainingSeconds)})`);
-        else if (this._cardKind === 'hourglass' && this._subtitle)
-            this._subtitle.set_text(`Time remaining: ${this._formatTime(remainingSeconds)}`);
+        if ((this._cardKind === 'short' || this._cardKind === 'hourglass') && this._subtitle)
+            this._subtitle.set_text(this._formatTime(remainingSeconds));
 
         if (this._hourglassArea && totalSeconds > 0) {
             this._hourglassProgress = Math.max(0, Math.min(1, 1 - remainingSeconds / totalSeconds));
@@ -71,7 +69,7 @@ export class ZoneOutPopup {
         return `${minutes}:${remainder}`;
     }
 
-    _showCard({ kind, title, subtitle, showDismiss = false, hourglass = false }) {
+    _showCard({ kind, title, subtitle, message = '', showDismiss = false, hourglass = false, onDismiss = null }) {
         this.dismiss();
 
         const popup = new St.BoxLayout({
@@ -84,19 +82,21 @@ export class ZoneOutPopup {
         const iconFile = Gio.File.new_for_path(`${this._extensionPath}/assets/pet.svg`);
         const petIcon = new St.Icon({
             gicon: new Gio.FileIcon({ file: iconFile }),
-            icon_size: hourglass ? 48 : 64,
+            icon_size: 48,
             y_align: Clutter.ActorAlign.CENTER,
         });
         popup.add_child(petIcon);
 
+        let hourglassArea = null;
         if (hourglass) {
             this._hourglassArea = new St.DrawingArea({
-                width: 96,
-                height: 128,
+                width: 38,
+                height: 50,
                 style_class: 'zoneout-hourglass',
+                y_align: Clutter.ActorAlign.CENTER,
             });
             this._hourglassArea.connect('repaint', area => drawHourglass(area, this._hourglassProgress));
-            popup.add_child(this._hourglassArea);
+            hourglassArea = this._hourglassArea;
         } else {
             this._hourglassArea = null;
         }
@@ -109,12 +109,17 @@ export class ZoneOutPopup {
             text: title,
             style_class: 'zoneout-title',
         });
+        this._message = new St.Label({
+            text: message,
+            style_class: 'zoneout-message',
+        });
         this._subtitle = new St.Label({
             text: subtitle,
             style_class: 'zoneout-subtitle',
         });
 
         textBox.add_child(titleLabel);
+        textBox.add_child(this._message);
         textBox.add_child(this._subtitle);
 
         if (showDismiss) {
@@ -125,11 +130,17 @@ export class ZoneOutPopup {
                 can_focus: false,
             });
             textBox.add_child(this._dismissButton);
+            this._dismissButton.connect('clicked', () => {
+                this.dismiss();
+                onDismiss?.();
+            });
         } else {
             this._dismissButton = null;
         }
 
         popup.add_child(textBox);
+        if (hourglassArea)
+            popup.add_child(hourglassArea);
         this._popup = popup;
         this._cardKind = kind;
 
@@ -164,6 +175,7 @@ export class ZoneOutPopup {
         const popupToClose = this._popup;
         this._popup = null;
         this._subtitle = null;
+        this._message = null;
         this._dismissButton = null;
         this._hourglassArea = null;
         this._cardKind = null;
@@ -194,6 +206,7 @@ export class ZoneOutPopup {
         }
 
         this._subtitle = null;
+        this._message = null;
         this._dismissButton = null;
         this._hourglassArea = null;
         this._cardKind = null;

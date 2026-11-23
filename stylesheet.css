@@ -13,6 +13,7 @@
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 14px;
     padding: 14px 18px;
+    min-height: 112px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
@@ -27,10 +28,16 @@
     margin-bottom: 4px;
 }
 
+.zoneout-message {
+    color: #d9e8f4;
+    font-size: 13px;
+    margin-bottom: 3px;
+}
+
 .zoneout-subtitle {
     color: #bbbbbb;
     font-size: 13px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 
 .zoneout-dismiss-btn {
