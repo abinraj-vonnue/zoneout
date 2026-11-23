@@ -55,7 +55,13 @@ From the extension directory, run:
 
 ```bash
 glib-compile-schemas schemas
-gnome-extensions pack --schema=org.gnome.shell.extensions.zoneout .
+gnome-extensions pack \
+  --schema=schemas/org.gnome.shell.extensions.zoneout.gschema.xml \
+  --extra-source=src \
+  --extra-source=assets \
+  --extra-source=README.md \
+  --extra-source=LICENSE \
+  --out-dir=dist .
 ```
 
 This creates an extension archive that can be installed locally with GNOME’s Extensions app or `gnome-extensions install`.
