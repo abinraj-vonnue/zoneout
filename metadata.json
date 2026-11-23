@@ -2,6 +2,7 @@
   "name": "ZoneOut",
   "description": "Minimal 15-minute eye break reminder with a peeking desktop buddy",
   "uuid": "zoneout@local",
+  "settings-schema": "org.gnome.shell.extensions.zoneout",
   "shell-version": ["45", "46", "47", "48"],
   "version": 1
 }
