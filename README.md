@@ -38,6 +38,17 @@ gnome-extensions enable zoneout@local
 
 If GNOME Shell does not load the extension immediately, log out and back in, then enable ZoneOut from the Extensions app.
 
+## Run tests
+
+The logic tests use Vitest and Node.js. Install the development dependency and run the suite with:
+
+```bash
+npm install
+npm test
+```
+
+The tests cover work-interval scheduling, message rotation, and the hourglass sand geometry. GNOME Shell UI integration still needs to be checked in a running Shell session.
+
 ## Package for local installation
 
 From the extension directory, run:

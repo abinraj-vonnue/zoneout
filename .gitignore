@@ -1,5 +1,6 @@
 # Generated extension archives
 *.zip
+node_modules/
 
 # OS and editor files
 .DS_Store
