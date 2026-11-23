@@ -1,6 +1,6 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import St from 'gi://St';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { ZoneOutIndicator } from './src/indicator.js';
 import { ZoneOutPopup } from './src/popup.js';
@@ -15,8 +15,9 @@ export default class ZoneOutExtension extends Extension {
         this._workChangedId = null;
         this._showTimerChangedId = null;
 
+        this._theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
         this._stylesheet = Gio.File.new_for_path(`${this.path}/stylesheet.css`);
-        Main.themeManager.loadStylesheet(this._stylesheet);
+        this._theme.load_stylesheet(this._stylesheet);
 
         this._popup = new ZoneOutPopup(this.path, () => {
             this._inBreak = false;
@@ -120,7 +121,8 @@ export default class ZoneOutExtension extends Extension {
         this._indicator?.destroy();
         this._indicator = null;
 
-        Main.themeManager.unloadStylesheet(this._stylesheet);
+        this._theme.unload_stylesheet(this._stylesheet);
+        this._theme = null;
         this._stylesheet = null;
         this._settings = null;
     }
