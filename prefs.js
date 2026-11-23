@@ -3,6 +3,13 @@ import Gtk from 'gi://Gtk';
 import Gio from 'gi://Gio';
 import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
+function addUnitSuffix(row, unit) {
+    row.add_suffix(new Gtk.Label({
+        label: unit,
+        css_classes: ['dim-label'],
+    }));
+}
+
 export default class ZoneOutPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         window.set_default_size(520, 480);
@@ -30,6 +37,7 @@ export default class ZoneOutPreferences extends ExtensionPreferences {
                 page_increment: 5,
             }),
         });
+        addUnitSuffix(workRow, 'minutes');
         settings.bind('work-interval', workRow, 'value', Gio.SettingsBindFlags.DEFAULT);
         scheduleGroup.add(workRow);
 
@@ -49,6 +57,7 @@ export default class ZoneOutPreferences extends ExtensionPreferences {
                 page_increment: 30,
             }),
         });
+        addUnitSuffix(longWorkRow, 'minutes');
         settings.bind('long-work-interval', longWorkRow, 'value', Gio.SettingsBindFlags.DEFAULT);
         longScheduleGroup.add(longWorkRow);
 
@@ -62,6 +71,7 @@ export default class ZoneOutPreferences extends ExtensionPreferences {
                 page_increment: 5,
             }),
         });
+        addUnitSuffix(longDurationRow, 'minutes');
         settings.bind('long-break-duration', longDurationRow, 'value', Gio.SettingsBindFlags.DEFAULT);
         longScheduleGroup.add(longDurationRow);
 
@@ -92,6 +102,7 @@ export default class ZoneOutPreferences extends ExtensionPreferences {
                 page_increment: 30,
             }),
         });
+        addUnitSuffix(closeRow, 'seconds');
         settings.bind('auto-close-seconds', closeRow, 'value', Gio.SettingsBindFlags.DEFAULT);
         panelGroup.add(closeRow);
 
