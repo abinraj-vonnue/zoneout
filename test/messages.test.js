@@ -18,5 +18,11 @@ describe('nextBreakMessage', () => {
         expect(nextBreakMessage('short')).toBe(first);
     });
 
+    it('keeps the long-break message rotation independent', () => {
+        const shortMessage = nextBreakMessage('short');
+        const longMessage = nextBreakMessage('long');
 
+        expect(shortMessage).not.toBe(longMessage);
+        expect(nextBreakMessage('long')).not.toBe(longMessage);
+    });
 });
