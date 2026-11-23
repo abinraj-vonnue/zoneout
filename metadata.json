@@ -1,9 +1,9 @@
 {
   "name": "ZoneOut",
   "description": "Customizable short and long break reminders with a playful desktop buddy and animated hourglass",
-  "uuid": "zoneout@local",
+  "uuid": "zoneout@abinraj",
   "url": "https://github.com/abinraj-vonnue/zoneout",
   "settings-schema": "org.gnome.shell.extensions.zoneout",
-  "shell-version": ["45", "46", "47", "48"],
-  "version": 2
+  "shell-version": ["46"],
+  "version-name": "1.0"
 }
