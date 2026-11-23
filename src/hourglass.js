@@ -24,30 +24,41 @@ export function drawHourglass(area, progress) {
         context.closePath();
         context.stroke();
 
-        context.setSourceRGBA(0.91, 0.67, 0.29, 0.96);
+        context.setSourceRGBA(0.38, 0.70, 0.91, 0.96);
 
-        const topSandY = neckY - (neckY - topY) * fill;
-        const topSandHalfWidth = side * fill;
-        context.moveTo(centerX - side + 4, topY + 4);
-        context.lineTo(centerX + side - 4, topY + 4);
+        const neckTopY = neckY - 4;
+        const neckBottomY = neckY + 4;
+        const topBaseY = topY + 4;
+        const bottomBaseY = bottomY - 4;
+        const edgeSandWidth = side - 4;
+        const neckSandWidth = 3;
+
+        // The upper sand remains in the bottom of its chamber and shrinks
+        // toward the neck as progress advances.
+        const topSandY = topBaseY + (neckTopY - topBaseY) * fill;
+        const topSandHalfWidth = edgeSandWidth * (1 - fill) + neckSandWidth * fill;
+        context.moveTo(centerX - topSandHalfWidth, topSandY);
         context.lineTo(centerX + topSandHalfWidth, topSandY);
-        context.lineTo(centerX - topSandHalfWidth, topSandY);
+        context.lineTo(centerX + neckSandWidth, neckTopY);
+        context.lineTo(centerX - neckSandWidth, neckTopY);
         context.closePath();
         context.fill();
 
-        const lowerSandY = bottomY - (bottomY - neckY) * fill;
-        const lowerSandHalfWidth = side * (1 - fill);
-        context.moveTo(centerX - side + 4, bottomY - 4);
-        context.lineTo(centerX + side - 4, bottomY - 4);
+        // The lower pile starts at the base and rises toward the neck.
+        const lowerSandY = bottomBaseY - (bottomBaseY - neckBottomY) * fill;
+        const lowerSandHalfWidth = edgeSandWidth * (1 - fill) + neckSandWidth * fill;
+        context.moveTo(centerX - edgeSandWidth, bottomBaseY);
+        context.lineTo(centerX + edgeSandWidth, bottomBaseY);
         context.lineTo(centerX + lowerSandHalfWidth, lowerSandY);
         context.lineTo(centerX - lowerSandHalfWidth, lowerSandY);
         context.closePath();
         context.fill();
 
         if (fill > 0.01 && fill < 0.99) {
+            context.setSourceRGBA(0.38, 0.70, 0.91, 0.96);
             context.setLineWidth(2);
-            context.moveTo(centerX, neckY - 2);
-            context.lineTo(centerX, neckY + 5);
+            context.moveTo(centerX, neckTopY);
+            context.lineTo(centerX, neckBottomY);
             context.stroke();
         }
     } finally {
