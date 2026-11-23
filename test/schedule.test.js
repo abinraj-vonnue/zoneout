@@ -10,5 +10,13 @@ describe('advanceWorkIntervals', () => {
         });
     });
 
+    it('starts a short break when the short interval reaches zero', () => {
+        expect(advanceWorkIntervals({ shortRemaining: 1, longRemaining: 20 })).toEqual({
+            shortRemaining: 0,
+            longRemaining: 19,
+            breakDue: 'short',
+        });
+    });
+
 
 });
