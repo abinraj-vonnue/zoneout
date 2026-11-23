@@ -15,7 +15,7 @@ export default class ZoneOutPreferences extends ExtensionPreferences {
         window.add(page);
 
         const scheduleGroup = new Adw.PreferencesGroup({
-            title: 'Break Schedule',
+            title: 'Short Break Schedule',
             description: 'Set how often ZoneOut reminds you to look away.',
         });
         page.add(scheduleGroup);
@@ -32,6 +32,49 @@ export default class ZoneOutPreferences extends ExtensionPreferences {
         });
         settings.bind('work-interval', workRow, 'value', Gio.SettingsBindFlags.DEFAULT);
         scheduleGroup.add(workRow);
+
+        const longScheduleGroup = new Adw.PreferencesGroup({
+            title: 'Long Break Schedule',
+            description: 'Schedule a longer rest after a focused work interval.',
+        });
+        page.add(longScheduleGroup);
+
+        const longWorkRow = new Adw.SpinRow({
+            title: 'Long Break Interval',
+            subtitle: 'Minutes of focused work before a long break',
+            adjustment: new Gtk.Adjustment({
+                lower: 1,
+                upper: 480,
+                step_increment: 5,
+                page_increment: 30,
+            }),
+        });
+        settings.bind('long-work-interval', longWorkRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        longScheduleGroup.add(longWorkRow);
+
+        const longDurationRow = new Adw.SpinRow({
+            title: 'Long Break Duration',
+            subtitle: 'Minutes to rest before the next work cycle',
+            adjustment: new Gtk.Adjustment({
+                lower: 1,
+                upper: 120,
+                step_increment: 1,
+                page_increment: 5,
+            }),
+        });
+        settings.bind('long-break-duration', longDurationRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        longScheduleGroup.add(longDurationRow);
+
+        const longModeRow = new Adw.ComboRow({
+            title: 'Long Break Display',
+            subtitle: 'Choose how ZoneOut shows the long break',
+            model: Gtk.StringList.new([
+                'Start and end notices',
+                'Persistent hourglass',
+            ]),
+        });
+        settings.bind('long-break-mode', longModeRow, 'selected', Gio.SettingsBindFlags.DEFAULT);
+        longScheduleGroup.add(longModeRow);
 
         const panelGroup = new Adw.PreferencesGroup({
             title: 'Notification & Panel',
@@ -64,7 +107,7 @@ export default class ZoneOutPreferences extends ExtensionPreferences {
 
         const resetRow = new Adw.ActionRow({
             title: 'Reset Settings',
-            subtitle: 'Restore the default 15-minute interval and 20-second popup',
+            subtitle: 'Restore the default short and long break schedules',
         });
         const resetButton = new Gtk.Button({
             label: 'Reset',
@@ -75,6 +118,9 @@ export default class ZoneOutPreferences extends ExtensionPreferences {
             settings.reset('work-interval');
             settings.reset('auto-close-seconds');
             settings.reset('show-timer');
+            settings.reset('long-work-interval');
+            settings.reset('long-break-duration');
+            settings.reset('long-break-mode');
         });
         resetRow.add_suffix(resetButton);
         resetGroup.add(resetRow);
