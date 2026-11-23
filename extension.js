@@ -5,6 +5,7 @@ import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { ZoneOutIndicator } from './src/indicator.js';
 import { ZoneOutPopup } from './src/popup.js';
 import { nextBreakMessage } from './src/messages.js';
+import { advanceWorkIntervals } from './src/schedule.js';
 
 const LONG_BREAK_MODE_NOTICES = 0;
 const LONG_BREAK_MODE_HOURGLASS = 1;
@@ -108,12 +109,16 @@ export default class ZoneOutExtension extends Extension {
         if (this._paused)
             return GLib.SOURCE_CONTINUE;
 
-        this._shortRemaining -= 1;
-        this._longRemaining -= 1;
+        const intervals = advanceWorkIntervals({
+            shortRemaining: this._shortRemaining,
+            longRemaining: this._longRemaining,
+        });
+        this._shortRemaining = intervals.shortRemaining;
+        this._longRemaining = intervals.longRemaining;
 
-        if (this._longRemaining <= 0)
+        if (intervals.breakDue === 'long')
             this._startLongBreak();
-        else if (this._shortRemaining <= 0)
+        else if (intervals.breakDue === 'short')
             this._startShortBreak();
         else
             this._updateLabel();

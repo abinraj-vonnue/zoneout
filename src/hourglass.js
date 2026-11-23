@@ -1,3 +1,35 @@
+export function getHourglassSandGeometry(progress) {
+    const fill = Math.max(0, Math.min(1, progress));
+    const topY = 10;
+    const neckY = 64;
+    const bottomY = 118;
+    const side = 32;
+    const neckTopY = neckY - 4;
+    const neckBottomY = neckY + 4;
+    const topBaseY = topY + 4;
+    const bottomBaseY = bottomY - 4;
+    const edgeSandWidth = side - 4;
+    const neckSandWidth = 3;
+
+    return {
+        progress: fill,
+        upper: {
+            surfaceY: topBaseY + (neckTopY - topBaseY) * fill,
+            surfaceHalfWidth: edgeSandWidth * (1 - fill) + neckSandWidth * fill,
+            neckY: neckTopY,
+            neckHalfWidth: neckSandWidth,
+        },
+        lower: {
+            surfaceY: bottomBaseY - (bottomBaseY - neckBottomY) * fill,
+            surfaceHalfWidth: edgeSandWidth * (1 - fill) + neckSandWidth * fill,
+            neckY: neckBottomY,
+            baseY: bottomBaseY,
+            baseHalfWidth: edgeSandWidth,
+        },
+        streamVisible: fill > 0.01 && fill < 0.99,
+    };
+}
+
 export function drawHourglass(area, progress) {
     const [width, height] = area.get_surface_size();
     const context = area.get_context();
@@ -6,7 +38,7 @@ export function drawHourglass(area, progress) {
     const neckY = 64;
     const bottomY = 118;
     const side = 32;
-    const fill = Math.max(0, Math.min(1, progress));
+    const sand = getHourglassSandGeometry(progress);
 
     try {
         context.scale(width / 100, height / 128);
@@ -26,39 +58,28 @@ export function drawHourglass(area, progress) {
 
         context.setSourceRGBA(0.38, 0.70, 0.91, 0.96);
 
-        const neckTopY = neckY - 4;
-        const neckBottomY = neckY + 4;
-        const topBaseY = topY + 4;
-        const bottomBaseY = bottomY - 4;
-        const edgeSandWidth = side - 4;
-        const neckSandWidth = 3;
-
         // The upper sand remains in the bottom of its chamber and shrinks
         // toward the neck as progress advances.
-        const topSandY = topBaseY + (neckTopY - topBaseY) * fill;
-        const topSandHalfWidth = edgeSandWidth * (1 - fill) + neckSandWidth * fill;
-        context.moveTo(centerX - topSandHalfWidth, topSandY);
-        context.lineTo(centerX + topSandHalfWidth, topSandY);
-        context.lineTo(centerX + neckSandWidth, neckTopY);
-        context.lineTo(centerX - neckSandWidth, neckTopY);
+        context.moveTo(centerX - sand.upper.surfaceHalfWidth, sand.upper.surfaceY);
+        context.lineTo(centerX + sand.upper.surfaceHalfWidth, sand.upper.surfaceY);
+        context.lineTo(centerX + sand.upper.neckHalfWidth, sand.upper.neckY);
+        context.lineTo(centerX - sand.upper.neckHalfWidth, sand.upper.neckY);
         context.closePath();
         context.fill();
 
         // The lower pile starts at the base and rises toward the neck.
-        const lowerSandY = bottomBaseY - (bottomBaseY - neckBottomY) * fill;
-        const lowerSandHalfWidth = edgeSandWidth * (1 - fill) + neckSandWidth * fill;
-        context.moveTo(centerX - edgeSandWidth, bottomBaseY);
-        context.lineTo(centerX + edgeSandWidth, bottomBaseY);
-        context.lineTo(centerX + lowerSandHalfWidth, lowerSandY);
-        context.lineTo(centerX - lowerSandHalfWidth, lowerSandY);
+        context.moveTo(centerX - sand.lower.baseHalfWidth, sand.lower.baseY);
+        context.lineTo(centerX + sand.lower.baseHalfWidth, sand.lower.baseY);
+        context.lineTo(centerX + sand.lower.surfaceHalfWidth, sand.lower.surfaceY);
+        context.lineTo(centerX - sand.lower.surfaceHalfWidth, sand.lower.surfaceY);
         context.closePath();
         context.fill();
 
-        if (fill > 0.01 && fill < 0.99) {
+        if (sand.streamVisible) {
             context.setSourceRGBA(0.38, 0.70, 0.91, 0.96);
             context.setLineWidth(2);
-            context.moveTo(centerX, neckTopY);
-            context.lineTo(centerX, neckBottomY);
+            context.moveTo(centerX, sand.upper.neckY);
+            context.lineTo(centerX, sand.lower.neckY);
             context.stroke();
         }
     } finally {
