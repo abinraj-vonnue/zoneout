@@ -3,6 +3,7 @@ import Clutter from 'gi://Clutter';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import { drawHourglass } from './hourglass.js';
 
 export class ZoneOutIndicator {
     constructor(uuid, callbacks) {
@@ -14,17 +15,34 @@ export class ZoneOutIndicator {
         });
         this._button.add_child(this._label);
 
+        this._longProgress = 0;
+        this._hourglass = new St.DrawingArea({
+            width: 22,
+            height: 28,
+            style_class: 'zoneout-panel-hourglass',
+        });
+        this._hourglass.connect('repaint', area => drawHourglass(area, this._longProgress));
+        this._button.add_child(this._hourglass);
+
         this._pauseItem = new PopupMenu.PopupMenuItem('Pause');
         this._pauseItem.connect('activate', () => callbacks.onTogglePause());
         this._button.menu.addMenuItem(this._pauseItem);
+
+        this._longBreakItem = new PopupMenu.PopupMenuItem('Long break in 60:00');
+        this._longBreakItem.setSensitive(false);
+        this._button.menu.addMenuItem(this._longBreakItem);
 
         const resetItem = new PopupMenu.PopupMenuItem('Reset Timer');
         resetItem.connect('activate', () => callbacks.onReset());
         this._button.menu.addMenuItem(resetItem);
 
-        const testItem = new PopupMenu.PopupMenuItem('Test Break Now');
+        const testItem = new PopupMenu.PopupMenuItem('Test Short Break Now');
         testItem.connect('activate', () => callbacks.onTestBreak());
         this._button.menu.addMenuItem(testItem);
+
+        const testLongItem = new PopupMenu.PopupMenuItem('Test Long Break Now');
+        testLongItem.connect('activate', () => callbacks.onTestLongBreak());
+        this._button.menu.addMenuItem(testLongItem);
 
         this._button.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this._button.menu.addAction('Settings', () => callbacks.onOpenSettings());
@@ -38,6 +56,18 @@ export class ZoneOutIndicator {
 
     setPaused(paused) {
         this._pauseItem.label.set_text(paused ? 'Resume' : 'Pause');
+    }
+
+    setLongWorkProgress(remainingSeconds, totalSeconds) {
+        const total = Math.max(1, totalSeconds);
+        const remaining = Math.max(0, Math.min(total, remainingSeconds));
+        this._longProgress = 1 - remaining / total;
+        this._hourglass.queue_repaint();
+
+        const minutes = Math.floor(remaining / 60).toString().padStart(2, '0');
+        const seconds = (remaining % 60).toString().padStart(2, '0');
+        const label = remaining === 0 ? 'Long break now' : `Long break in ${minutes}:${seconds}`;
+        this._longBreakItem.label.set_text(label);
     }
 
     setVisible(visible) {

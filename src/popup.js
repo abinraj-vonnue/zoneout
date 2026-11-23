@@ -3,6 +3,7 @@ import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import { drawHourglass } from './hourglass.js';
 
 export class ZoneOutPopup {
     constructor(extensionPath) {
@@ -94,7 +95,7 @@ export class ZoneOutPopup {
                 height: 128,
                 style_class: 'zoneout-hourglass',
             });
-            this._hourglassArea.connect('repaint', area => this._drawHourglass(area));
+            this._hourglassArea.connect('repaint', area => drawHourglass(area, this._hourglassProgress));
             popup.add_child(this._hourglassArea);
         } else {
             this._hourglassArea = null;
@@ -149,61 +150,6 @@ export class ZoneOutPopup {
             duration: 300,
             mode: Clutter.AnimationMode.EASE_OUT_QUAD,
         });
-    }
-
-    _drawHourglass(area) {
-        const [width, height] = area.get_surface_size();
-        const context = area.get_context();
-        const centerX = width / 2;
-        const topY = height * 0.08;
-        const neckY = height * 0.5;
-        const bottomY = height * 0.92;
-        const side = width * 0.31;
-        const progress = this._hourglassProgress;
-
-        try {
-            context.setSourceRGBA(0.91, 0.94, 0.98, 0.94);
-            context.setLineWidth(3);
-            context.moveTo(centerX - side, topY);
-            context.lineTo(centerX + side, topY);
-            context.lineTo(centerX + 3, neckY - 4);
-            context.lineTo(centerX + 3, neckY + 4);
-            context.lineTo(centerX + side, bottomY);
-            context.lineTo(centerX - side, bottomY);
-            context.lineTo(centerX - 3, neckY + 4);
-            context.lineTo(centerX - 3, neckY - 4);
-            context.closePath();
-            context.stroke();
-
-            context.setSourceRGBA(0.91, 0.67, 0.29, 0.96);
-
-            const topSandY = neckY - (neckY - topY) * progress;
-            const topSandHalfWidth = side * progress;
-            context.moveTo(centerX - side + 4, topY + 4);
-            context.lineTo(centerX + side - 4, topY + 4);
-            context.lineTo(centerX + topSandHalfWidth, topSandY);
-            context.lineTo(centerX - topSandHalfWidth, topSandY);
-            context.closePath();
-            context.fill();
-
-            const lowerSandY = bottomY - (bottomY - neckY) * progress;
-            const lowerSandHalfWidth = side * (1 - progress);
-            context.moveTo(centerX - side + 4, bottomY - 4);
-            context.lineTo(centerX + side - 4, bottomY - 4);
-            context.lineTo(centerX + lowerSandHalfWidth, lowerSandY);
-            context.lineTo(centerX - lowerSandHalfWidth, lowerSandY);
-            context.closePath();
-            context.fill();
-
-            if (progress > 0.01 && progress < 0.99) {
-                context.setLineWidth(2);
-                context.moveTo(centerX, neckY - 2);
-                context.lineTo(centerX, neckY + 5);
-                context.stroke();
-            }
-        } finally {
-            context.$dispose();
-        }
     }
 
     dismiss() {

@@ -33,6 +33,7 @@ export default class ZoneOutExtension extends Extension {
             onTogglePause: () => this._togglePause(),
             onReset: () => this._resetTimers(),
             onTestBreak: () => this._startShortBreak(),
+            onTestLongBreak: () => this._testLongBreak(),
             onOpenSettings: () => this.openPreferences(),
         });
 
@@ -89,6 +90,7 @@ export default class ZoneOutExtension extends Extension {
             text = 'Paused';
 
         this._indicator.setText(text);
+        this._indicator.setLongWorkProgress(this._longRemaining, this._getLongWorkSeconds());
     }
 
     _tick() {
@@ -151,6 +153,19 @@ export default class ZoneOutExtension extends Extension {
         }
 
         this._updateLabel();
+    }
+
+    _testLongBreak() {
+        if (this._activeBreak === 'long')
+            return;
+
+        if (this._activeBreak === 'short') {
+            this._popup.dismiss();
+            this._activeBreak = null;
+        }
+
+        this._longRemaining = 0;
+        this._startLongBreak();
     }
 
     _finishBreak() {
