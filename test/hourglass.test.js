@@ -33,5 +33,8 @@ describe('getHourglassSandGeometry', () => {
         expect(geometry.streamVisible).toBe(false);
     });
 
-
+    it('clamps progress to the hourglass range', () => {
+        expect(getHourglassSandGeometry(-1).progress).toBe(0);
+        expect(getHourglassSandGeometry(2).progress).toBe(1);
+    });
 });
