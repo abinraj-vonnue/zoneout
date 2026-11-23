@@ -81,20 +81,17 @@ export default class ZoneOutExtension extends Extension {
             return;
 
         let text = this._formatTime(this._shortRemaining);
-        if (this._paused)
-            text = 'Paused';
-        else if (this._activeBreak === 'long')
+        if (this._activeBreak === 'long')
             text = 'Long break';
         else if (this._activeBreak === 'short')
             text = 'Break';
+        else if (this._paused)
+            text = 'Paused';
 
         this._indicator.setText(text);
     }
 
     _tick() {
-        if (this._paused)
-            return GLib.SOURCE_CONTINUE;
-
         if (this._activeBreak) {
             this._breakRemaining -= 1;
 
@@ -106,6 +103,9 @@ export default class ZoneOutExtension extends Extension {
 
             return GLib.SOURCE_CONTINUE;
         }
+
+        if (this._paused)
+            return GLib.SOURCE_CONTINUE;
 
         this._shortRemaining -= 1;
         this._longRemaining -= 1;
