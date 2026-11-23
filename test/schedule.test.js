@@ -18,5 +18,11 @@ describe('advanceWorkIntervals', () => {
         });
     });
 
-
+    it('gives a long break priority when both intervals expire together', () => {
+        expect(advanceWorkIntervals({ shortRemaining: 1, longRemaining: 1 })).toEqual({
+            shortRemaining: 0,
+            longRemaining: 0,
+            breakDue: 'long',
+        });
+    });
 });
