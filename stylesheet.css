@@ -12,6 +12,10 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
+.zoneout-hourglass {
+    margin: 0 4px;
+}
+
 .zoneout-title {
     color: #ffffff;
     font-size: 15px;
