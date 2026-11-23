@@ -23,5 +23,15 @@ describe('getHourglassSandGeometry', () => {
         expect(middle.streamVisible).toBe(true);
     });
 
+    it('ends with an empty upper chamber and sand accumulated in the lower chamber', () => {
+        const geometry = getHourglassSandGeometry(1);
+
+        expect(geometry.upper.surfaceY).toBe(60);
+        expect(geometry.upper.surfaceHalfWidth).toBe(3);
+        expect(geometry.lower.surfaceY).toBe(68);
+        expect(geometry.lower.surfaceHalfWidth).toBe(3);
+        expect(geometry.streamVisible).toBe(false);
+    });
+
 
 });
