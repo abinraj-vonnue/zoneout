@@ -26,14 +26,14 @@ Long breaks can show a brief notice when they start and end, or keep an hourglas
 
 ## Install from source
 
-The extension metadata currently uses the local development UUID `zoneout@local`. Install the repository in a directory with that name:
+The extension UUID is `zoneout@abinraj`. Install the repository in a directory with that name:
 
 ```bash
-extension_dir="${XDG_DATA_HOME:-$HOME/.local/share}/gnome-shell/extensions/zoneout@local"
+extension_dir="${XDG_DATA_HOME:-$HOME/.local/share}/gnome-shell/extensions/zoneout@abinraj"
 mkdir -p "$(dirname "$extension_dir")"
 git clone https://github.com/abinraj-vonnue/zoneout.git "$extension_dir"
 glib-compile-schemas "$extension_dir/schemas"
-gnome-extensions enable zoneout@local
+gnome-extensions enable zoneout@abinraj
 ```
 
 If GNOME Shell does not load the extension immediately, log out and back in, then enable ZoneOut from the Extensions app.
@@ -55,13 +55,23 @@ From the extension directory, run:
 
 ```bash
 glib-compile-schemas schemas
-gnome-extensions pack --schema=org.gnome.shell.extensions.zoneout .
+gnome-extensions pack \
+  --schema=schemas/org.gnome.shell.extensions.zoneout.gschema.xml \
+  --extra-source=src \
+  --extra-source=assets \
+  --extra-source=README.md \
+  --extra-source=LICENSE \
+  --out-dir=dist .
 ```
 
 This creates an extension archive that can be installed locally with GNOME’s Extensions app or `gnome-extensions install`.
 
 ## Compatibility and publishing
 
-`metadata.json` currently declares GNOME Shell 45, 46, 47, and 48. The project has been developed and checked on GNOME Shell 46; other versions should be verified before claiming support.
+`metadata.json` declares GNOME Shell 46, the version used for development and verification. Verify compatibility on other GNOME Shell versions before adding them to the metadata.
 
-Before submitting this extension to [GNOME Extensions](https://extensions.gnome.org/upload/), replace `zoneout@local` with a globally unique UUID and use that UUID as the installed extension directory name. Update the README installation commands to match the new UUID as well.
+To publish the extension, package it with the commands above and submit the ZIP at [GNOME Extensions](https://extensions.gnome.org/upload/). GNOME Extensions requires a unique UUID and a GPL-compatible license.
+
+## License
+
+ZoneOut is distributed under the GNU General Public License, version 2 or (at your option) any later version. See [LICENSE](LICENSE) for the full terms.
