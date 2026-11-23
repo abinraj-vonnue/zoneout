@@ -11,5 +11,17 @@ describe('getHourglassSandGeometry', () => {
         expect(geometry.streamVisible).toBe(false);
     });
 
+    it('drains upper sand toward the neck while the lower pile rises', () => {
+        const start = getHourglassSandGeometry(0);
+        const middle = getHourglassSandGeometry(0.5);
+
+        expect(middle.upper.surfaceY).toBeGreaterThan(start.upper.surfaceY);
+        expect(middle.upper.surfaceY).toBeLessThan(middle.upper.neckY);
+        expect(middle.upper.surfaceHalfWidth).toBeLessThan(start.upper.surfaceHalfWidth);
+        expect(middle.lower.surfaceY).toBeLessThan(start.lower.surfaceY);
+        expect(middle.lower.surfaceY).toBeGreaterThan(middle.lower.neckY);
+        expect(middle.streamVisible).toBe(true);
+    });
+
 
 });
