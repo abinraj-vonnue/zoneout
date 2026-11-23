@@ -1,0 +1,6 @@
+# Generated extension archives
+*.zip
+
+# OS and editor files
+.DS_Store
+*~
